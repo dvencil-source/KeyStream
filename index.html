@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KeyStream — Music Transposer for Worship Teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0c14; --bg2: #16131f; --bg3: #1e1a2e; --bg4: #251f38;
+  --accent: #c8a96e; --accent2: #e8c98e; --purple: #7c6bdc;
+  --purple-light: #a898f0; --text: #f0eee8; --text2: #9e9ba8;
+  --text3: #6a6778; --border: rgba(200,169,110,0.15);
+  --border2: rgba(200,169,110,0.08); --red: #e06060; --green: #6ec89a;
+  --radius: 12px; --rsm: 8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh;max-width:1200px;margin:0 auto;}
+.sidebar{border-right:1px solid var(--border2);padding:24px;height:100vh;position:sticky;top:0;}
+.main{padding:32px 28px;}
+.logo{font-family:'Instrument Serif',serif;font-size:28px;margin-bottom:30px;padding: 0 16px;}
+.logo em{color:var(--accent);font-style:italic;}
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:22px;margin-bottom:14px;}
+.card-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-label::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* Upload Zone */
+.upload-zone{border:1.5px dashed rgba(200,169,110,0.2);border-radius:var(--rsm);padding:32px 20px;text-align:center;cursor:pointer;transition:0.2s;}
+.upload-zone.drag{border-color:var(--accent);background:rgba(200,169,110,0.08);transform:scale(1.01);}
+
+/* Key Buttons */
+.key-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.key-btn{width:52px;height:50px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;transition:0.1s;}
+.key-btn.orig-sel{border-color:var(--purple);background:rgba(124,107,220,0.15);color:var(--purple-light);}
+.key-btn.tgt-sel{border-color:var(--accent);background:var(--accent);color:var(--bg);font-weight:600;}
+
+/* Presets */
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:8px;}
+.preset-btn{background:var(--bg3);border:1px solid var(--border2);padding:12px;border-radius:var(--rsm);cursor:pointer;text-align:left;transition:0.15s;}
+.preset-btn:hover{border-color:var(--accent);background:rgba(200,169,110,0.05);}
+.preset-btn .p-name{color:var(--text);font-size:13px;display:block;margin-bottom:2px;}
+.preset-btn .p-detail{color:var(--text3);font-size:11px;display:block;}
+
+/* Controls */
+.slider-row{display:flex;align-items:center;gap:14px;}
+input[type=range]{flex:1;appearance:none;background:var(--bg4);height:3px;border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid var(--bg2);}
+
+.play-btn{width:54px;height:54px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.play-btn:hover:not(:disabled){transform:scale(1.05);background:var(--accent2);}
+.play-btn:disabled{background:var(--bg4);cursor:not-allowed;opacity:0.5;}
+
+.timeline{height:6px;background:var(--bg4);border-radius:3px;cursor:pointer;flex:1;position:relative;overflow:hidden;}
+.timeline-fill{height:100%;background:var(--accent);width:0%;pointer-events:none;}
+
+.status-row{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border-radius:var(--rsm);margin-top:12px;font-size:13px;color:var(--text2);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}
+.dot.playing{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">Key<em>Stream</em></div>
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;padding:0 16px;margin-bottom:12px;">Library</div>
+    <div id="libraryList" style="padding:0 16px;font-size:13px;color:var(--text3);">No saved songs yet.</div>
+  </aside>
+
+  <main class="main">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text
