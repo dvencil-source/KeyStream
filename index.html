@@ -396,25 +396,37 @@ async function startPlayback(offset) {
     audioCtx = new AudioContext();
     const decoded = await audioCtx.decodeAudioData(rawArrayBuffer.slice(0));
     duration = decoded.duration;
+    
     const src = audioCtx.createBufferSource();
     src.buffer = decoded;
-    // Compensate for the pitch shift that playbackRate introduces
-    const tempoDetuneCompensation = Math.log2(getTempo()) * 1200;
-    src.detune.value       = (getTotalPitchSemitones() * 100) - tempoDetuneCompensation;
+
+    // 1. Set the playbackRate strictly to the tempo slider (Speed)
+    // This handles the "Time" aspect.
     src.playbackRate.value = getTempo();
+
+    // 2. Set detune strictly to the semitone shift (Pitch)
+    // 100 cents = 1 semitone. 
+    // This handles the "Key" aspect without affecting the speed.
+    src.detune.value = getSemitoneShift() * 100;
+
     src.connect(audioCtx.destination);
     src.start(0, Math.max(0, Math.min(offset, duration - 0.1)));
+    
     currentSource = src;
     startTime   = audioCtx.currentTime;
     pauseOffset = offset;
     isPlaying   = true;
+    
     playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+    
     const parts = [];
     const sh = getSemitoneShift();
     if (sh !== 0) parts.push(`${sh > 0 ? '+' : ''}${sh} semitones`);
     const t = getTempo();
     if (Math.abs(t - 1) > 0.01) parts.push(`${(t * 100).toFixed(0)}% speed`);
+    
     setStatus('playing', 'Playing' + (parts.length ? ' · ' + parts.join(' · ') : ''));
+    
     src.onended = () => {
       if (!isPlaying) return;
       stopPlayback();
@@ -428,7 +440,7 @@ async function startPlayback(offset) {
     setStatus('error', 'Playback error: ' + err.message);
   }
 }
-
+  
 function applyTransforms() {
   if (!isPlaying) return;
   const el = (audioCtx.currentTime - startTime) * getTempo() + pauseOffset;
